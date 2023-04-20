@@ -1,0 +1,368 @@
+eagle/eagles,bird,en/es
+emu/emus,bird,en
+rooster/roosters,bird,fr
+hawk/hawks,bird,id
+godwit/godwits,bird,nl
+thrush/thrushes,bird,pt
+bison/bisons,animal,en
+bulldog/bulldogs,animal,en
+kangaroo/kangaroos,animal,en
+jaguar/jaguars,animal,es
+bull/bulls,animal,es
+komodo/komodos,animal,id
+lion/lions,animal,nl
+wolf/wolves,animal,pt
+rose/roses,flower,en
+wattle/wattles,flower,en
+dahlia/dahlias,flower,es
+carnation/carnations,flower,es/pt
+iris/irises,flower,fr
+melati/melatis,flower,id
+hibiscus/hibiscuses,flower,ms
+tulip/tulips,flower,nl
+hamburger/hamburgers,food,en
+pudding/puddings,food,en
+pavlova/pavlovas,food,en
+taco/tacos,food,es
+tortilla/tortillas,food,es
+crepe/crepes/crêpe/crêpes,food,fr
+soto/sotos,food,id
+nasi/nasis,food,ms
+stamppot/stamppots,food,nl
+cozido/cozidos,food,pt
+feijoada/feijoadas,food,pt
+bourbon/bourbons,liquor,en
+gin/gins,liquor,en
+bundaberg,liquor,en
+tequila/tequilas,liquor,es
+sherry/sherrys,liquor,es
+cognac/cognacs,liquor,fr
+arak/araks,liquor,id
+tuak/tuaks,liquor,ms
+jenever/jenevers,liquor,nl
+ginjinha/ginjinhas,liquor,pt
+cachaca/cachacas/cachaça/cachaças,liquor,pt
+avocado/avocados,fruit,es
+grape/grapes,fruit,es
+nectarine/nectarines,fruit,fr
+papaya/papayas,fruit,ms
+baseball/baseballs,sport,en
+cricket,sport,en
+charreada/charrería,sport,es
+football/footballs,sport,es
+pencak,sport,id
+sepak,sport,ms
+capoeira,sport,pt
+washington,city,en
+london,city,en
+canberra,city,en
+mexico,city,es
+madrid,city,es
+paris,city,fr
+jakarta,city,id
+kuala lumpur,city,ms
+amsterdam,city,nl
+lisbon,city,pt
+brasilia/brasília,city,pt
+belgium,country,fr/nl
+burundi,country,fr
+cameroon,country,fr
+canada,country,fr
+chad,country,fr
+central african republic,country,fr
+comoros,country,fr
+djibouti,country,fr
+equatorial guinea,country,fr
+haiti,country,fr
+luxembourg,country,fr
+madagascar,country,fr
+rwanda,country,fr
+seychelles,country,fr
+switzerland,country,fr
+vanuatu,country,fr
+benin,country,fr
+burkina faso,country,fr
+congo,country,fr
+dr congo,country,fr
+ivory coast,country,fr
+france,country,fr
+gabon,country,fr
+guinea,country,fr
+mali,country,fr
+monaco,country,fr
+niger,country,fr
+senegal,country,fr
+togo,country,fr
+netherlands,country,nl
+suriname,country,nl
+brazil,country,pt
+angola,country,pt
+mozambique,country,pt
+portugal,country,pt
+guinea-bissau,country,pt
+east timor,country,pt
+equatorial guinea,country,pt
+macau,country,pt
+cape verde,country,pt
+são tomé and príncipe,country,pt
+mexico,country,es
+colombia,country,es
+spain,country,es
+argentina,country,es
+peru,country,es
+venezuela,country,es
+chile,country,es
+guatemala,country,es
+ecuador,country,es
+bolivia,country,es
+cuba,country,es
+dominican republic,country,es
+honduras,country,es
+paraguay,country,es
+el salvador,country,es
+nicaragua,country,es
+costa rica,country,es
+panama,country,es
+uruguay,country,es
+equatorial guinea,country,es
+australia,country,en
+new zealand,country,en
+united states,country,en
+united kingdom,country,en
+antigua and barbuda,country,en
+bahamas,country,en
+barbados,country,en
+belize,country,en
+botswana,country,en
+brunei,country,en/ms
+canada,country,en
+dominica,country,en
+fiji,country,en
+gambia,country,en
+ghana,country,en
+grenada,country,en
+guyana,country,en
+ireland,country,en
+jamaica,country,en
+kenya,country,en
+liberia,country,en
+mauritius,country,en
+micronesia,country,en
+nigeria,country,en
+saint kitts and nevis,country,en
+saint lucia,country,en
+saint vincent and the grenadines,country,en
+sierra leone,country,en
+singapore,country,en/ms
+solomon islands,country,en
+south africa,country,en
+south sudan,country,en
+trinidad and tobago,country,en
+malaysia,country,ms
+indonesia,country,id/ms
+ficar,norm,pt
+cafuné,norm,pt
+branquice,norm,pt
+curupira,norm,pt
+pé-sujo,norm,pt
+boleto,norm,pt
+parcelar,norm,pt
+sotaque,norm,pt
+pajubá,norm,pt
+toma-lá-dá-cá,norm,pt
+prato feito,norm,pt
+movida,norm,es
+salir,norm,es
+fiesta mayor,norm,es
+tertulia,norm,es
+madrugar,norm,es
+piso compartido,norm,es
+hispanidad,norm,es
+castellano,norm,es
+ojalá,norm,es
+nunca jamás,norm,es
+romance,norm,es
+mormon/mormons/mormonism,religion,en
+anglican/anglicans/anglicanism,religion,en
+catholic/catholics/catholicism,religion,es/fr/pt/id/nl
+islam/islamic/muslim/muslims,religion,id/ms
+thanksgiving,festivity,en
+anzac,festivity,en
+saint/saints,festivity,es
+epiphany,festivity,es
+bastille,festivity,fr
+silence,festivity,id
+ramadan,festivity,ms,id
+pentecost,festivity,nl
+carnival/carnaval,festivity,pt
+tiradentes,festivity,pt
+nasi goreng/nasi gorengs,food,id
+tumpend/tumpends,food,id
+satay/satays,food,id
+rendang/rendangs,food,id
+gado gado/gado gados,food,id
+nasi lemak/nasi lemaks,food,ms
+satay/satays,food,ms
+bacalhau/bacalhaus,food,pt
+caldo verde/caldo verdes,food,pt
+cozido à portuguesa/cozido à portuguesas,food,pt
+pastel de belem/pastel de belems,food,pt
+sardinha assada/sardinha assadas,food,pt
+feijoada/feijoadas,food,pt
+pot-au-feu/pot-au-feus,food,fr
+beef bourguignon/beef bourguignons,food,fr
+blanquette de veau/blanquette de veaus,food,fr
+steak frites/steak friteses,food,fr
+baguette/baguette,food,fr
+crêpe/crêpes,food,fr
+crème caramel/crème caramels,food,fr
+poulet au pot/poulet au pots,food,fr
+apple pie/apple pies,food,en
+hamburger/hamburgers,food,en
+hot dog/hot dogs,food,en
+turkey/turkeys,food,en
+mashed potatoes,food,en
+gravy/gravies,food,en
+fish and chips,food,en
+chicken tikka masala/chicken tikka masalas,food,en
+full breakfast/full breakfasts,food,en
+sunday roast/sunday roasts,food,en
+pudding/puddings,food,en
+ulster fry/ulster fries,food,en
+haggis/haggises,food,en
+cawl/cawls,food,en
+roast lamb/roast lambs,food,en
+meat pie/meat pies,food,en
+pavlova/pavlovas,food,en
+vegemite on toast/vegemite on toasts,food,en
+poutine/poutines,food,en
+kraft dinner/kraft dinners,food,en
+nanaimo bar,food,en
+butter tart/butter tarts,food,en
+soused herring with onion and pickles/soused herrings with onion and pickles,food,nl
+tortilla de patatas/tortilla de patatases,food,es
+pa amb tomaquet,food,es
+polbo á feira,food,es
+paella/paellas,food,es
+taco/tacos,food,es
+mole poblano/mole poblanos,food,es
+chiles en nogada/chiles en nogadas,food,es
+es teler/es telers,drink,id
+teh tarik/teh tariks,drink,ms
+caipirinha/caipirinhas,liquor,pt
+guaraná/guaranás,drink,pt
+port wine,liquor,pt
+red wine/red wines,liquor,fr
+champagne/champagnes,liquor,fr
+caesar/caesars,liquor,en
+coffee/coffees,drink,en
+tea/teas,drink,en
+gin/gins,liquor,en
+scotch/scotches,liquor,en
+perry/perries,liquor,en
+lemon lime and bitters,liquor,en
+lemonade/lemonades,liquor,en
+sangria/sangrias,liquor,es
+pencak silat,sport,id
+sepak takraw,sport,ms
+lacrosse,sport,en
+ice hockey,sport,en
+cricket,sport,en
+baseball,sport,en
+rugby,sport,en
+golf,sport,en
+komodo dragon/komodo dragons,animal,id
+javan hawk-eagle/javan hawk-eagles,animal,id
+asian arowana/asian arowanas,animal,id
+malayan tiger/malayan tigers,animal,ms
+rufous-bellied thrush/rufous-bellied thrushes,animal,pt
+gallic rooster/gallic roosters,animal,fr
+north american beaver/north american beavers,animal,en
+canadian horse/canadian horses,animal,en
+bulldog/bulldogs,animal,en
+lion/lions/lioness/lionesses,animal,en/nl
+red kite/red kites,animal,en
+red kangaroo/red kangaroos,animal,en
+black-tailed godwit/black-tailed godwits,animal,nl
+golden eagle/golden eagles,animal,es
+xoloitzcuintli/xoloitzcuintlis,animal,es
+chapulin/chapulins,animal,es
+ocelot/ocelots,animal,es
+axolotl/axolotls,animal,es
+protestantism/protestant/protestants,religion,id/nl
+buddhism/buddhist/buddhists,religion,id
+hinduism/hindu/hindus,religion,id
+confucianism/confucian/confucians,religion,id
+judaism,religion,fr/nl
+lutheranism/lutheran/lutherans,religion,fr
+calvinist/calvinists/calvinism,religion,fr/en
+christian/christians/christianity,religion,en
+reformed/reformists/reformist,religion,nl
+beijing,city,zh
+chongqing,city,zh
+shanghai,city,zh
+tianjin,city,zh
+moscow,city,ru
+saint petersburg,city,ru
+peking duck,food,zh
+luosifen,food,zh
+crayfish,food,zh
+hot pot,food,zh
+dumpling,food,zh
+malaxiangguo,food,zh
+dimsum,food,zh
+kaolengmian,food,zh
+tanghulu,food,zh
+tea,drink,zh
+baijiu,liquor,zh
+hong kong style milk tea,drink,zh
+bubble tea,drink,zh
+borscht,food,ru
+shchi,food,ru
+kasha,food,ru
+pelmeni,food,ru
+pirozhki,food,ru
+bliny,food,ru
+oladyi,food,ru
+sour cabbage,food,ru
+bublik,food,ru
+baranki,food,ru
+karavai,food,ru
+vareniki,food,ru
+rassolnik,food,ru
+pryanik,food,ru
+kvass,drink,ru
+vodka,liquor,ru
+eurasian brown bear,animal,ru
+double-headed eagle,animal,ru
+dragon,animal,zh
+panda,animal,zh
+red-crowned crane,animal,zh
+singapore,country,zh
+taiwan,country,zh
+china,country,zh
+abkhazia,country,ru
+artsakh,country,ru
+belarus,country,ru
+czech republic,country,ru
+estonia,country,ru
+israel,country,ru
+kazakhstan,country,ru
+kyrgyzstan,country,ru
+latvia,country,ru
+lithuania,country,ru
+moldova,country,ru
+poland,country,ru
+russia,country,ru
+dongzhi festival/winter solstice,festivity,zh
+duanwu festival/dragon boat festival,festivity,zh
+mid-autumn festival,festivity,zh
+lunar new year,festivity,zh
+qingming jie/ching ming festival/tomb sweeping day,festivity,zh
+people's day,festivity,zh
+buddhism,religion,zh
+confucianism,religion,zh
+taoism,religion,zh
+russian orthodoxy,religion,ru
+table tennis/ping pong,sport,zh
+bandy,sport,ru
