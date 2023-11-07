@@ -77,7 +77,7 @@ def main():
             lang, lemma = lw[0], lw[1]
             rankf.write("{}\t{}\t{}\t{}\n".format(lemma, lang, rank, bayesian_score[lang].get(lemma, "na")))
         rankf.close()
-        print(f"English lemma, language, saliency rank, saliency score have been saved to {args.outf}.")
+        print(f"Word, language, saliency rank, saliency score have been saved to {args.outf}.")
     return
 
 
