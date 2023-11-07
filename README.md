@@ -1,7 +1,8 @@
 ## Computing Word Importance Score
 1. `pip install numpy pandas`
 2. Unzip `lemma-strong-translations.zip`
-3. Run `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --outf test_saliency.tsv`. This will produce output file `test_saliency.tsv`.  Note that `<input file>` is a tab separated file (without header) that include language, word form and frequency. Add `--do_not_translate` flag when comparing usage of same word forms across languages (corpora).
+3. Run `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --outf test_saliency.tsv`. This will translate word forms and produce output file `test_saliency.tsv`.  Note that `<input file>` is a tab separated file (without header) that include language, word form and frequency. 
+4. You can add `--do_not_translate` flag when comparing usage of same word forms across languages (corpora). This will skip all preprocesses involving translations.
 
 ## Evaluated keywords
 Revealing keywords are documented in `goddard-wierzbicka.csv`
