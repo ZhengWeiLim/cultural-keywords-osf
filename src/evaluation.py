@@ -3,12 +3,17 @@ import numpy as np
 import scipy.stats as stat
 import random, math
 from collections import Counter
-random.seed(2022)
+from numpy.random import Generator, PCG64
 from scipy.stats import pearsonr, spearmanr
+
+random.seed(2022)
+rng = Generator(PCG64())
+
 from src.statistics import get_alphas, get_n, rank_keyword_by_freq_score, random_baseline, proportion_score, \
-    frequency_score, final_score, rank_keyword_score
+    frequency_score, final_score, rank_keyword_score, sort_tuple_score, get_recall_at_k
 from src.word_mapping import get_wordlist
 from src.keywords import load_and_translate_keywords
+
 
 def recall_rank_1_by_language(lang_keyword_dict, lang_word_rank_dict, language_names, show_found_keywords=True):
     lang_rank_1_kwords = {}
@@ -135,87 +140,6 @@ def sort_rank_by_score(keyword_score_dict, reverse=True):
 
     return sc, sorted_sc, word_sc_rank
 
-
-def get_list_of_count_by_range(arange, dlist):
-    count = []
-    dlist.sort()
-    for i, x in enumerate(arange):
-        if i < len(arange) - 1:
-            group = list(filter(lambda d: d >= x and d < arange[i + 1], dlist))
-        else:
-            group = list(filter(lambda d: d >= x, dlist))
-        dlist = [d for d in dlist if d not in group]
-        count.append(len(group))
-    return count
-
-
-def get_recall_by_range_sum(external_keywords, internal_keywords, word_sc_rank_dict, lang_word_rank_dict, step):
-    bins = range(0, len(list(word_sc_rank_dict.values())[0].keys()), step)
-
-    def recall_by_range_sum(bins, word_ids, no_gold):
-        count_list = get_list_of_count_by_range(bins, word_ids)
-        recall_by_range = np.array(count_list) / no_gold
-        sum_count_list = [count if i == 0 else count + sum(count_list[:i]) for i, count in enumerate(count_list)]
-        recall_by_sum = np.array(sum_count_list) / no_gold
-        return recall_by_range, recall_by_sum
-
-    result = {}
-
-    gold_cat_words = {}
-    gold_cat_words["en-ext"] = list(external_keywords["en"])
-    gold_cat_words["non-en-ext"] = [w for lang, wlist in external_keywords.items() for w in wlist if lang != "en"]
-    gold_cat_words["en-int"] = list(internal_keywords["en"])
-    gold_cat_words["non-en-int"] = [w for lang, wlist in internal_keywords.items() for w in wlist if lang != "en"]
-    gold_cat_words["en-all"] = list(external_keywords["en"].union(internal_keywords["en"]))
-    gold_cat_words["non-en-all"] = [w for lang, wlist in external_keywords.items()
-                                    for w in wlist.union(internal_keywords[lang]) if lang != "en"]
-    gold_cat_words["all-int"] = [w for wlist in internal_keywords.values() for w in wlist]
-    gold_cat_words["all-ext"] = [w for wlist in external_keywords.values() for w in wlist]
-    gold_cat_words["all"] = [w for lang, wlist in external_keywords.items()
-                             for w in wlist.union(internal_keywords[lang])]
-
-    for method, word_sc_rank in word_sc_rank_dict.items():
-        non_en_ext_words = [w for lang, wlist in external_keywords.items()
-                            for w in wlist if lang != "en" and lang_word_rank_dict[method][lang][w] == 1]
-        non_en_int_words = [w for lang, wlist in internal_keywords.items()
-                            for w in wlist if lang != "en" and lang_word_rank_dict[method][lang][w] == 1]
-        non_en_all_words = [w for lang, wlist in external_keywords.items()
-                            for w in wlist.union(internal_keywords[lang]) if lang != "en"
-                            and lang_word_rank_dict[method][lang][w] == 1]
-        en_ext_words = [w for w in external_keywords["en"] if lang_word_rank_dict[method]["en"][w] == 1]
-        en_int_words = [w for w in internal_keywords["en"] if lang_word_rank_dict[method]["en"][w] == 1]
-        en_all_words = [w for w in external_keywords["en"].union(internal_keywords["en"])
-                        if lang_word_rank_dict[method]["en"][w] == 1]
-        all_int_words = [w for lang, wlist in internal_keywords.items() for w in wlist
-                         if lang_word_rank_dict[method][lang][w] == 1]
-        all_ext_words = [w for lang, wlist in external_keywords.items() for w in wlist
-                         if lang_word_rank_dict[method][lang][w] == 1]
-        all_words = [w for lang, wlist in external_keywords.items()
-                     for w in wlist.union(internal_keywords[lang]) if lang_word_rank_dict[method][lang][w] == 1]
-
-        result[method] = {}
-
-        non_en_ext_word_ids = [word_sc_rank[w] for w in non_en_ext_words]
-        non_en_int_word_ids = [word_sc_rank[w] for w in non_en_int_words]
-        non_en_all_word_ids = [word_sc_rank[w] for w in non_en_all_words]
-        en_ext_word_ids = [word_sc_rank[w] for w in en_ext_words]
-        en_int_word_ids = [word_sc_rank[w] for w in en_int_words]
-        en_all_word_ids = [word_sc_rank[w] for w in en_all_words]
-        all_int_word_ids = [word_sc_rank[w] for w in all_int_words]
-        all_ext_word_ids = [word_sc_rank[w] for w in all_ext_words]
-        all_word_ids = [word_sc_rank[w] for w in all_words]
-        cat_word_ids = {"en-ext": en_ext_word_ids, "en-int": en_int_word_ids, "non-en-ext": non_en_ext_word_ids,
-                        "non-en-int": non_en_int_word_ids, "en-all": en_all_word_ids,
-                        "non-en-all": non_en_all_word_ids, "all-int": all_int_word_ids,
-                        "all-ext": all_ext_word_ids, "all": all_word_ids}
-
-        for cat, word_ids in cat_word_ids.items():
-            result[method][cat] = {}
-            result[method][cat]["range"], result[method][cat]["sum"] = recall_by_range_sum(bins, word_ids,
-                                                                                           len(gold_cat_words[cat]))
-
-    return result
-
 def evaluate_keyword_classifications(classifier_lang_word_rank, external_keywords, internal_keywords, available_keywords):
     int_ext_recall_mean_std = {}
 
@@ -274,27 +198,26 @@ def spearman_correlation(word_score1, word_score2, label=None, verbose=True, out
 
 ################################ INDEPENDENCE TESTS #################################
 
-def sample_wordlist(wordlist, npartitions=100, drop_ratio=0.1, overlap=True, wreplacement=True):
-    if overlap:
-        wordlist = list(wordlist)
-        nsamples = math.floor(len(wordlist) * (1-drop_ratio))
-        if wreplacement:
-            sampled_wordlists = [random.choices(wordlist, k=nsamples) for i in range(npartitions)]
-        else:
-            sampled_wordlists = [random.sample(wordlist, k=nsamples) for i in range(npartitions)]
-    else:
-        wordlist = list(wordlist)
-        random.shuffle(wordlist)
-        nwords = len(wordlist) // npartitions
-        partitions = [wordlist[i:i+nwords] for i in range(0, nwords*npartitions, nwords)]
-        sampled_wordlists = []
-        for i in range(npartitions):
-            curr_list = []
-            for j, part in enumerate(partitions):
-                if j!=i:
-                    curr_list += part
-            sampled_wordlists.append(curr_list)
+def sample_wordlist_with_replacement(wordlist, tr_freq, npartitions=100):
+    vocab_langsize = {}
+    for lang, wfreq in tr_freq.items():
+        for w in wfreq.keys():
+            vocab_langsize[w] = vocab_langsize.get(w, 0) + 1
+
+    langsize_vocab = {}
+    for w, sz in vocab_langsize.items():
+        langsize_vocab[sz] = langsize_vocab.get(sz, []) + [w]
+
+    sampled_wordlists = []
+    for i in range(npartitions):
+        sampled_wordlist = []
+        for langsize, ws in langsize_vocab.items():
+            nsamples = len(ws)
+            sampled_wordlist += list(rng.choice(ws, size=nsamples))
+        sampled_wordlists.append(sampled_wordlist)
+
     return sampled_wordlists
+
 
 def expand_keywords(keywords, w_count):
     # expand keyword set based on repeated sampled words
@@ -326,7 +249,7 @@ def expand_tr_freq(tr_freq, wsamples):
     return w_fq
 
 
-def evaluate_by_vocab(wordlist, original_tr_freq, lemma_strong_translations, n, smoothing_param, recall_k=100, npartitions=10, keyword_languages=None):
+def evaluate_by_vocab(wordlist, original_tr_freq, lemma_strong_translations, n, smoothing_param, npartitions=10, keyword_languages=None):
 
     wordlist_clf_eval = []
     wordlist_rank_eval = []
@@ -337,23 +260,22 @@ def evaluate_by_vocab(wordlist, original_tr_freq, lemma_strong_translations, n, 
     languages = list(original_tr_freq.keys())
     keyword_languages = languages if keyword_languages is None else keyword_languages
     # bootstrap samples with replacements
-    for wsamples in sample_wordlist(wordlist, npartitions, overlap=True, wreplacement=True, drop_ratio=0):
+    for wsamples in sample_wordlist_with_replacement(wordlist, original_tr_freq, npartitions):
         w_fq = expand_tr_freq(original_tr_freq, wsamples)
         w_count = Counter(wsamples)
         tr_freqs.append(w_fq)
         w_counts.append(w_count)
 
     for tr_freq, w_count in zip(tr_freqs, w_counts):
-        alpha_w, alpha = get_alphas(tr_freq, smoothing_param)
         wordlist = get_wordlist(tr_freq, languages)
-        bayesian_score = final_score(wordlist, languages, tr_freq, alpha, alpha_w, n,
-                                     smoothing_param=smoothing_param, stddev=True, log=True)
+        alphas = get_alphas(tr_freq, wordlist, smoothing_param)
+        bayesian_score = final_score(tr_freq, alphas, wordlist, n)
         # rank by s_w, word with S_w and argmax s_w
-        bayesian_rank, bayesian_rank_keyword_score = rank_keyword_score(wordlist, languages, bayesian_score)
+        bayesian_rank, bayesian_rank_keyword_score, _  = rank_keyword_score(wordlist, languages, bayesian_score)
 
         # baseline method measures difference in proportions
-        prop_score = proportion_score(wordlist, languages, tr_freq, n)
-        prop_rank, prop_rank_keyword_score = rank_keyword_score(wordlist, languages, prop_score)
+        prop_score = proportion_score(tr_freq, wordlist, n)
+        prop_rank, prop_rank_keyword_score, _ = rank_keyword_score(wordlist, languages, prop_score)
 
         # baseline method measures difference in raw frequency, rank by ascending and descending
         freq_score = frequency_score(wordlist, languages, tr_freq, n)
@@ -362,14 +284,7 @@ def evaluate_by_vocab(wordlist, original_tr_freq, lemma_strong_translations, n, 
         random_rank = random_baseline(wordlist, tr_freq, languages)
         clf_ranks = {"bayesian": bayesian_rank, "proportion": prop_rank, "ascending": asc_rank, "descending": des_rank,
                      "random": random_rank}
-
-        bayes_sc, bayes_sorted_sc, bayes_word_sc_rank = sort_rank_by_score(bayesian_rank_keyword_score)
-        prop_sc, prop_sorted_sc, prop_word_sc_rank = sort_rank_by_score(prop_rank_keyword_score)
-        asc_sc, asc_sorted_sc, asc_word_sc_rank = sort_rank_by_score(asc_rank_keyword_score, reverse=False)
-        des_sc, des_sorted_sc, des_word_sc_rank = sort_rank_by_score(des_rank_keyword_score)
-
-        word_sc_rank = {"bayesian": bayes_word_sc_rank, "proportion": prop_word_sc_rank, "ascending": asc_word_sc_rank,
-                        "descending": des_word_sc_rank}
+        clf_scores = {"bayesian":  bayesian_score, "proportion":  prop_score, "descending": freq_score}
 
         cultural_keywords, concept_words_language, expected_keywords, all_keywords_en, available_keywords, \
         internal_keywords, external_keywords = load_and_translate_keywords(lemma_strong_translations, keyword_languages,
@@ -387,6 +302,7 @@ def evaluate_by_vocab(wordlist, original_tr_freq, lemma_strong_translations, n, 
         available_keywords = expand_keywords(available_keywords, w_count)
 
         int_ext_recall_mean_std = {}
+        recall = {}
 
         for method, lang_word_rank in clf_ranks.items():
             int_ext_recall_mean_std[method] = recall_mean_std_by_keyword_categories(external_keywords,
@@ -394,11 +310,14 @@ def evaluate_by_vocab(wordlist, original_tr_freq, lemma_strong_translations, n, 
                                                                                     available_keywords, lang_word_rank,
                                                                                     excluded_language=None)
 
-        wordlist_clf_eval.append(int_ext_recall_mean_std)
-        wordlist_rank_eval.append(
-            get_recall_by_range_sum(external_keywords, internal_keywords, word_sc_rank, clf_ranks, recall_k))
-    return wordlist_clf_eval, wordlist_rank_eval
+        for method, score in clf_scores.items():
+            tuple_score = sort_tuple_score(score)
+            recall[method] = get_recall_at_k(available_keywords, tuple_score)
 
+
+        wordlist_clf_eval.append(int_ext_recall_mean_std)
+        wordlist_rank_eval.append(recall)
+    return wordlist_clf_eval, wordlist_rank_eval
 
 
 def get_result(method, metrics, wordlist_clf_eval, wordlist_rank_eval, rank_eval_idx=0):

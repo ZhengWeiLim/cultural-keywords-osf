@@ -11,19 +11,19 @@ def preprocess_fq(lang_word_fq, column_name="avg"):
 def flatten_fq(lang_word_fq, column_name="avg"):
     return {lang: {word: fq[column_name]for word, fq in word_fq.items()} for lang, word_fq in lang_word_fq.items()}
 
-
 def get_wordlist_scores(w_freq, smoothing_param, languages, strong_translations, translate=False, source="en_lemma", ):
-    alpha_w_, alpha_,  = get_alphas(w_freq, smoothing_param)
-    n_ = get_n(w_freq)
     if translate:
         w_freq = calculate_frequency(w_freq, strong_translations, languages, source)
     mwordlist = get_wordlist(w_freq, languages)
+    alphas_  = get_alphas(w_freq, mwordlist, smoothing_param)
+    n_ = get_n(w_freq)
+    # print(n_, alphas_)
+    mclf_lang_word_score = final_score(w_freq, alphas_, mwordlist,  n_, languages=languages)
 
-    mclf_lang_word_score = final_score(mwordlist, languages, w_freq, alpha_, alpha_w_, n_,
-                                       smoothing_param=smoothing_param, stddev=True, log=True)
-    mclf_ranks, mclf_rank_keyword_score = rank_keyword_score(mwordlist, languages, mclf_lang_word_score)
+    mclf_ranks, mclf_rank_keyword_score, _ = rank_keyword_score(mwordlist, languages, mclf_lang_word_score)
     msc, msorted_sc, mword_sc_rank = sort_rank_by_score(mclf_rank_keyword_score)
     return w_freq, mwordlist, mclf_lang_word_score, mclf_ranks, mclf_rank_keyword_score, msc, msorted_sc, mword_sc_rank
+
 
 
 def translate_cue_response_stat(cue_response_stat, languages, strong_translations, source, translate="cue",
@@ -206,7 +206,7 @@ def get_lemma_set(language, word, word_lemma, strong_translations, freq):
 
 
 def get_usage_assoc_alignment(usage_label, assoc_label, languages, language_names, strong_translations, shared_vocabulary,
-                              clf_rank_keyword_score, sc, word_lemma, freq, latex_format=False):
+                              clf_rank_keyword_score, clf_tuple, sc, word_lemma, freq, latex_format=False, available_keywords=None):
     correl = {"nkeywords": {}, "nclassified": {}}
 
     for metric in correl:
@@ -215,18 +215,21 @@ def get_usage_assoc_alignment(usage_label, assoc_label, languages, language_name
 
     topswowr123b, topswowr123p, topswowr123des = {}, {}, {}
     topfreqb, topfreqp, topfreqdes = {}, {}, {}
-    swowr123_freq_b, swowr123_freq_p, swowr123_freq_des = {}, {}, {}
-    swowr123_b, freqr123_b, swowr123_p, freqr123_p, swowr123_des, freqr123_des = {}, {}, {}, {}, {}, {}
+    # swowr123_freq_b, swowr123_freq_p, swowr123_freq_des = {}, {}, {}
+    # swowr123_b, freqr123_b, swowr123_p, freqr123_p, swowr123_des, freqr123_des = {}, {}, {}, {}, {}, {}
+    topswowr123b_tuple, topfreqb_tuple = {}, {}
 
     for lang in languages:
         topswowr123b[lang] = sorted([w for w in shared_vocabulary
                                      if clf_rank_keyword_score[assoc_label][w]["lang"] == lang],
-                                    key=sc[assoc_label].get,
+                                    key=sc[assoc_label][lang].get,
                                     reverse=True)
 
         topfreqb[lang] = sorted([w for w in shared_vocabulary
-                                 if clf_rank_keyword_score[usage_label][w]["lang"] == lang], key=sc[usage_label].get,
+                                 if clf_rank_keyword_score[usage_label][w]["lang"] == lang], key=sc[usage_label][lang].get,
                                 reverse=True)
+        topswowr123b_tuple[lang] = [w for lang2, w in clf_tuple[assoc_label] if lang2 == lang]
+        topfreqb_tuple[lang] = [w for lang2, w in clf_tuple[usage_label] if lang2 == lang]
 
     for lang in languages:
         print(f"===== {language_names[lang]} =====\n")
@@ -242,7 +245,7 @@ def get_usage_assoc_alignment(usage_label, assoc_label, languages, language_name
             print("----------------------------")
 
             top_number = 100
-            overlapped_words = set(topswowr123b[lang][:top_number]).intersection(set(topfreqb[lang2][:top_number]))
+            overlapped_words = set(topswowr123b_tuple[lang][:top_number]).intersection(set(topfreqb_tuple[lang2][:top_number]))
             correl["nkeywords"][usage_label]["r123"][lang][lang2] = len(overlapped_words)
             correl["nclassified"][usage_label]["r123"][lang][lang2] = len(
                 set(topswowr123b[lang]).intersection(set(topfreqb[lang2])))
@@ -371,8 +374,12 @@ def get_usage_assoc_alignment(usage_label, assoc_label, languages, language_name
                 else:
                     print("top 20 high in swow r123, low in freq: {}\n\n".format(", ".join(low_freq_high_swow)))
                     print("top 20 high in freq, low in swow r123: {}\n\n".format(", ".join(high_freq_low_swow)))
+                    if available_keywords is not None:
+                        overlapped_words = ["\033[1m{}\033[0m".format(w) if w in available_keywords[lang] else w for w in overlapped_words]
                     print(
                         f"{len(overlapped_words)} words in the top {top_number} of both freq and r123: {overlapped_words}")
 
         print("\n\n")
     return correl
+
+

@@ -120,6 +120,19 @@ def load_strong_translations(target_languages, folder_path="strong-translations/
 
     return strong_translations
 
+# def save_dict_to_csv(data, csv_path):
+#     with open(csv_path, 'w', encoding='UTF8') as f:
+#         writer = csv.writer(f)
+#         for k, v in data.items():
+#             val = v if not isinstance(v, list) else " ".join(v)
+#             writer.writerow([k, val])
+#     return
+#
+# def load_dict_from_csv(csv_path):
+#     data = {}
+#     for row in list(csv.reader(open(csv_path, 'r'))):
+#         data[row[0]] = row[1:]
+#     return data
 
 def load_vectors(fname, kwords=None):
     fin = io.open(fname, 'r', encoding='utf-8', newline='\n', errors='ignore')
