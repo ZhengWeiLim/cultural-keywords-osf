@@ -1,7 +1,7 @@
 ## Computing Word Importance Score
 1. `pip install numpy pandas`
-2. unzip `lemma-strong-translations.zip`
-3. Running `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --outf test_saliency.tsv [--do_not_translate]` will produce output file `test_saliency.tsv`.
+2. Unzip `lemma-strong-translations.zip`
+3. Run `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --outf test_saliency.tsv [--do_not_translate]`. This will produce output file `test_saliency.tsv`.
 
 Note that input file is a tab separated file (without header) that include language, word form and frequency. Add `--do_not_translate` flag when comparing usage of same word forms across languages (corpora).
 
