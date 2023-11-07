@@ -1,84 +1,17 @@
 import math
 import copy
 import random
+import numpy as np
 
 smoothing_param = 20
 random.seed(2022)
-
-def delta(fq_i, fq_j, a_w_i, a_w_j, a_i, a_j, n_i, n_j, log=True):
-    if log:
-        return math.log((fq_i + a_w_i) / (n_i + a_i - fq_i - a_w_i)) - math.log((fq_j + a_w_j) / (n_j + a_j - fq_j - a_w_j))
-    else:
-        return (fq_i + a_w_i) / (n_i + a_i - fq_i - a_w_i) - (fq_j + a_w_j) / (n_j + a_j - fq_j - a_w_j)
-
-
-def alpha_w_other(lang, all_langs, freq, smoothing_param=smoothing_param):  # same across type of mappings
-    other_langs = copy.deepcopy(all_langs)
-    other_langs.remove(lang)
-    other_uniq: int = sum([len(freq[tar].keys()) for tar in other_langs])
-    return smoothing_param / other_uniq
-
-
-def word_freq_J(word, lang, all_langs, freq):  # same across type of mappings
-    other_langs = copy.deepcopy(all_langs)
-    other_langs.remove(lang)
-    other_fq = 0
-    for oth in other_langs:
-        if word in freq[oth]:
-            other_fq += freq[oth][word]
-    return other_fq
-
-
-def n_other(lang, all_langs, n):  # same across type of mappings
-    other_langs = copy.deepcopy(all_langs)
-    other_langs.remove(lang)
-    other_n = sum([n[tar] for tar in other_langs])
-    return other_n
-
-
-def variance_delta(word, lang, all_langs, alpha, freq, smoothing_param=smoothing_param):
-    if word in freq[lang]:
-        fq_lang = freq[lang][word]
-        fq_J = word_freq_J(word, lang, all_langs, freq)
-        alpha_lang = alpha[lang]
-        alpha_J = alpha_w_other(lang, all_langs, freq, smoothing_param=smoothing_param)
-        return (1 / (fq_lang + alpha_lang)) + (1 / (fq_J + alpha_J))
-    else:
-        raise ValueError('{} is not found in {}'.format(word, lang))
-
-
-def final_score(wordlist, languages, freq, alpha, alpha_w, n, smoothing_param=smoothing_param, stddev=True, log=True):
-    lang_delta = {}  # {lang: {w: delta}}
-
-    for lang in languages:
-        delt = {}
-        for w in wordlist:
-            if w in freq[lang]:
-                delt[w] = delta(freq[lang][w], word_freq_J(w, lang, languages, freq),
-                                alpha_w[lang], alpha_w_other(lang, languages, freq, smoothing_param=smoothing_param),
-                                smoothing_param, smoothing_param, n[lang], n_other(lang, languages, n), log=log)
-        lang_delta[lang] = delt
-
-    if stddev:
-        lang_final_score = {}
-
-        for lang, delt in lang_delta.items():
-
-            lang_final_score[lang] = {}
-
-            for w, d in delt.items():
-                var_wd = variance_delta(w, lang, languages, alpha, freq, smoothing_param=smoothing_param)
-                lang_final_score[lang][w] = d / (var_wd ** 0.5)
-    else:
-        lang_final_score = lang_delta
-
-    return lang_final_score  # {lang: {word: score}}
 
 
 def rank_keyword_score(wordlist, languages, final_score, descending=True):  # (Eq. 1)
     # by default, higher scores ->  higher ranks
     rank = {l: {} for l in languages}  # {lang: {word: rank}}
     rank_keyword_score = {}  # {word (en): {"score": score, "lang": lang}}
+    lang_word_norm_score = {l: {} for l in languages} # {lang: {word: score}}
 
     for w in wordlist:
         score = {}
@@ -94,31 +27,84 @@ def rank_keyword_score(wordlist, languages, final_score, descending=True):  # (E
 
         sorted_score = sorted(score.values(), reverse=descending)
         avg_other = sum(sorted_score[1:]) / len(sorted_score[1:])
+
+        score_sum = sum(score.values())
+        score_n = len(score.keys())
+        for lang, sc in score.items():
+            sc_avg_other = (score_sum - sc) / (score_n - 1)
+            lang_word_norm_score[lang][w] = sc - sc_avg_other
+
         curr_keyword_score = sorted_score[0] - avg_other
         rank_keyword_score[w] = {"score": curr_keyword_score, "lang": sorted_langs_by_score[0]}
 
-    return rank, rank_keyword_score
+    return rank, rank_keyword_score, lang_word_norm_score
 
-def get_alphas(freq, smoothing_param=smoothing_param):
-    alpha_w = {lang: smoothing_param / len(list(word_fq.keys())) for lang, word_fq in freq.items()}
-    alpha = {lang: smoothing_param for lang, dt in freq.items()}  # same across type of mappings
-    return alpha_w, alpha
 
 def get_n(freq):
     n = {lang: sum(dt.values()) for lang, dt in freq.items()}  # same across type of mappings
     return n
 
-def proportion_score(wordlist, languages, freq, n):
-    lang_word_score = {l: {} for l in languages}
+
+def get_alphas(freq, wordlist, smoothing_param):
+    nm = len(set([w for wfq in freq.values() for w in wfq]))
+    alpha_mi = smoothing_param
+    alpha_0i = alpha_mi * nm
+    alpha_m = {}
+    alpha_0m = {}
+
+    for w in wordlist:
+        langs = [lang for lang, wfq in freq.items() if w in wfq.keys()]
+        alpha_m[w] = len(langs) * alpha_mi
+        alpha_0m[w] = len(langs) * alpha_mi * nm
+    return (alpha_mi, alpha_0i, alpha_m, alpha_0m)
+
+
+def final_score(freq, alphas, wordlist, lang_n, languages=None):
+    languages = languages if languages is not None else freq.keys()
+
+    def log_odds_ratio(mfq, n, alpha_m, alpha_0):
+        return np.log((mfq + alpha_m) / (n + alpha_0 - mfq - alpha_m))
+
+    def stddev(delta, wfq, prior_mfq, alpha_mi, alpha_m):
+        return delta / ((1 / (wfq + alpha_mi)) + (1 / (prior_mfq + alpha_m))) ** 0.5
+
+    alpha_mi, alpha_0i, alpha_m, alpha_0m = alphas
+
+    m_n = {w: sum([lang_n[lang] for lang in languages if w in freq[lang].keys()]) for w in wordlist}
+    m_fq = {w: sum([freq[lang].get(w, 0) for lang in languages]) for w in wordlist}
+    m_lor = {w: log_odds_ratio(m_fq[w], m_n[w], alpha_m[w], alpha_0m[w]) for w in wordlist}
+
+    m_fq_vect = np.array([m_fq[w] for w in wordlist])
+    m_lor_vect = np.array([m_lor[w] for w in wordlist])
+    alpha_m_vect = np.array([alpha_m[w] for w in wordlist])
+
+    lang_word_score = {}
     for lang in languages:
-        other_langs = copy.deepcopy(languages)
+        fq_vect = np.array([freq[lang].get(w, np.nan) for w in wordlist])
+        lor_vect = log_odds_ratio(fq_vect, lang_n[lang], alpha_mi, alpha_0i)
+        delta_vect = lor_vect - m_lor_vect
+        delta_std_vect = stddev(delta_vect, fq_vect, m_fq_vect, alpha_mi, alpha_m_vect)
+
+        lang_word_score[lang] = {w: val for w, val in dict(zip(wordlist, delta_std_vect)).items() if not np.isnan(val)}
+
+    return lang_word_score
+
+
+def proportion_score(freq, wordlist, lang_n):
+    lang_word_score = {l: {} for l in freq}
+    m_n = {w: sum([lang_n[lang] for lang, wfq in freq.items() if w in wfq.keys()]) for w in wordlist}
+    m_fq = {w: sum([wfq.get(w, 0) for lang, wfq in freq.items()]) for w in wordlist}
+    m_prop = {w: m_fq[w] / m_n[w] for w in wordlist}
+
+    for lang in freq:
+        other_langs = copy.deepcopy(list(freq.keys()))
         other_langs.remove(lang)
         for w in wordlist:
             if w in freq[lang]:
-                prop_w = freq[lang][w] / n[lang]
-                prop_others = [freq[othl][w] / n[othl] for othl in other_langs if w in freq[othl]]
-                avg_prop_others = sum(prop_others)/len(prop_others)
-                lang_word_score[lang][w] = prop_w - avg_prop_others
+                prop_w = freq[lang][w] / lang_n[lang]
+                prop_prior = m_prop[w]
+                # avg_prop_others = sum(prop_others)/len(prop_others)
+                lang_word_score[lang][w] = prop_w - prop_prior
     return lang_word_score
 
 def frequency_score(wordlist, languages, freq, n):
@@ -129,7 +115,29 @@ def frequency_score(wordlist, languages, freq, n):
                 lang_word_score[lang][w] = freq[lang][w] / n[lang]
     return lang_word_score
 
+
+def sort_tuple_score(lang_word_score, descending=True):
+    tuple_score = {}
+    for lang, word_score in lang_word_score.items():
+        for word, score in word_score.items():
+            tuple_score[(lang, word)] = score
+    sorted_tuples = sorted(tuple_score.keys(), key=tuple_score.get, reverse=True)
+    return sorted_tuples
+
+
+def get_recall_at_k(keywords, tuple_rank):
+    recall_at_k = []
+    num_recall = 0
+    keyword_sz = sum([len(kws) for lang, kws in keywords.items()])
+    for rank, (lang, word) in enumerate(tuple_rank):
+        if word in keywords.get(lang, {}):
+            num_recall += 1
+        recall_at_k.append(num_recall / keyword_sz)
+    return recall_at_k
+
+
 def rank_keyword_by_freq_score(wordlist, languages, freq_score, descending=True):  # (Eq. 1)
+    # language classification
     # by default, higher scores ->  higher ranks
     rank = {l: {} for l in languages}  # {lang: {word: rank}}
     rank_keyword_score = {}  # {word (en): {"score": score, "lang": lang}}

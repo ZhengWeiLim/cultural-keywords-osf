@@ -6,8 +6,8 @@ Unrevealing keywords are documented in `external-keywords.csv`
 
 ## Results and analysis
 
-1. Results and analysis reported in Section 5 are shown in notebook `word-usage-analysis-L=23.ipynb`.
-Results and analysis reported in Section 6 are shown in notebook `small-world-analysis.ipynb`.
+1. Results and analysis reported in Section 5 are shown in notebook `word-usage-analysis-V4c.ipynb`.
+Results and analysis reported in Section 6 are shown in notebook `word-assoc-analysis-V4c.ipynb`.
 2. There are three types of files in `measurements`:
    1. `*_word_importance_score*.txt` records scores of meaning classes associated with respective language (Equation 1, 
    described in Section 5.1).
