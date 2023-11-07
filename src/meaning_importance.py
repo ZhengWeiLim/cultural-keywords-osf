@@ -9,11 +9,12 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--inputf", default=None, type=str, required=True,
-                        help="input csv file with rows of 'language,untranslated word,frequency'")
+                        help="input tsv file with rows of language, untranslated word, frequency")
     parser.add_argument("--strong_translation_dir", default="lemma-strong-translations", type=str, required=False,
                         help="strong translation directory")
     parser.add_argument("--alpha", default=1, type=float, required=False,
                         help='alpha_m^i, smoothing parameter for prior calculation')
+    parser.add_argument("--do_not_translate", action="store_true", help="skip translation and use word forms directly")
     parser.add_argument("--outf", default=None, type=str, required=True,
                         help="output file")
     args = parser.parse_args()
@@ -31,19 +32,27 @@ def main():
         freq[lang] = freq.get(lang, {})
         freq[lang][word] = fq
 
-    not_supp_languages = set(freq.keys()) - set(languages)
-    if len(not_supp_languages) > 0:
-        print(f"{not_supp_languages} not supported and have been excluded from our analysis.\nSupported languages include {languages}.")
 
-    languages = set(languages).intersection(set(freq.keys()))
-    strong_translations = load_strong_translations(languages, folder_path=args.strong_translation_dir, source="en_lemma")
+    if not args.do_not_translate:
+        not_supp_languages = set(freq.keys()) - set(languages)
+        if len(not_supp_languages) > 0:
+            print(f"{not_supp_languages} not supported and have been excluded from our analysis.\nSupported languages include {languages}.")
 
-    if 'zh' in freq:
-        print('Converting traditional Chinese characters to simplified characters ... ')
-        freq["zh"] = expand_chinese_characters(freq["zh"], convert="key", count_values=True)
+        languages = set(languages).intersection(set(freq.keys()))
+        strong_translations = load_strong_translations(languages, folder_path=args.strong_translation_dir, source="en_lemma")
 
-    tr_freq = calculate_frequency(freq, strong_translations, languages, source="en_lemma")
+        if 'zh' in freq:
+            print('Converting traditional Chinese characters to simplified characters ... ')
+            freq["zh"] = expand_chinese_characters(freq["zh"], convert="key", count_values=True)
+
+        tr_freq = calculate_frequency(freq, strong_translations, languages, source="en_lemma")
+
+    else:
+        languages = set(freq.keys())
+        tr_freq = freq
+
     wordlist = get_wordlist(tr_freq, languages)
+
 
     n = get_n(freq)
     alphas = get_alphas(tr_freq, wordlist, smoothing_param)
@@ -52,15 +61,23 @@ def main():
     bayesian_tuple_rank = {tup: i + 1 for i, tup in enumerate(bayesian_tuple)}
 
     rankf = open(args.outf, "w")
-    rankf.write("en_lemma\tlanguage\tforms\tsaliency rank\tsaliency score\n")
-    for lw, rank in bayesian_tuple_rank.items():
-        lang, lemma = lw[0], lw[1]
-        forms = set(strong_translations[f'en_lemma-{lang}'][lemma])
-        forms = '/'.join([form for form in forms if form in freq[lang]])
-        rankf.write("{}\t{}\t{}\t{}\t{}\n".format(lemma, lang, forms, rank, bayesian_score[lang].get(lemma, "na")))
-    rankf.close()
 
-    print(f"English lemma, language, forms, saliency rank, saliency score have been saved to {args.outf}.")
+    if not args.do_not_translate:
+        rankf.write("en_lemma\tlanguage\tforms\tsaliency rank\tsaliency score\n")
+        for lw, rank in bayesian_tuple_rank.items():
+            lang, lemma = lw[0], lw[1]
+            forms = set(strong_translations[f'en_lemma-{lang}'][lemma])
+            forms = '/'.join([form for form in forms if form in freq[lang]])
+            rankf.write("{}\t{}\t{}\t{}\t{}\n".format(lemma, lang, forms, rank, bayesian_score[lang].get(lemma, "na")))
+        rankf.close()
+        print(f"English lemma, language, forms, saliency rank, saliency score have been saved to {args.outf}.")
+    else:
+        rankf.write("form\tlanguage\tsaliency rank\tsaliency score\n")
+        for lw, rank in bayesian_tuple_rank.items():
+            lang, lemma = lw[0], lw[1]
+            rankf.write("{}\t{}\t{}\t{}\n".format(lemma, lang, rank, bayesian_score[lang].get(lemma, "na")))
+        rankf.close()
+        print(f"English lemma, language, saliency rank, saliency score have been saved to {args.outf}.")
     return
 
 
