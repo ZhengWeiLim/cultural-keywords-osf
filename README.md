@@ -1,7 +1,9 @@
 ## Computing Word Importance (Saliency) Scores
 1. `pip install numpy pandas`
 2. Unzip `lemma-strong-translations.zip`
-3. Run `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --outf test_saliency.tsv`. This will translate word forms and produce output file `test_saliency.tsv`.  Note that `<input file>` is a tab separated file (without header) that includes language (corpus), word form and frequency. 
+3. Run `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --alpha 1 --outf test_saliency.tsv`. 
+   This will translate word forms and produce output file `test_saliency.tsv`.  Note that `<input file>` is a tab separated file (without header) that includes language (corpus), word form and frequency. 
+    `--alpha 1` sets $\alpha^i_m$ to 1.
 4. You can add `--do_not_translate` flag when comparing usage of same word forms across languages (corpora). This will skip all preprocesses involving translations.
 
 ## Evaluated keywords
