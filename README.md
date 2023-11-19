@@ -1,10 +1,39 @@
 ## Computing Word Importance (Saliency) Scores
-1. `pip install numpy pandas`
+1. `pip install numpy pandas opencc-python-reimplemented`
 2. Unzip `lemma-strong-translations.zip`
 3. Run `python src/meaning_importance.py --inputf <input file> --strong_translation_dir lemma-strong-translations-0.2 --alpha 1 --outf test_saliency.tsv`. 
-   This will translate word forms and produce output file `test_saliency.tsv`.  Note that `<input file>` is a tab separated file (without header) that includes language (corpus), word form and frequency. 
+   This will translate word forms and produce output file `test_saliency.tsv`.  Note that `<input file>` is a tab separated file (without header) that includes language code (corpus), word form and frequency. 
     `--alpha 1` sets $\alpha^i_m$ to 1.
 4. You can add `--do_not_translate` flag when comparing usage of same word forms across languages (corpora). This will skip all preprocesses involving translations.
+5. Supported languages include 
+    
+    | code   | language   |
+    |:-------|:-----------|
+    | zh     | Chinese    |
+    | ko     | Korean     |
+    | id     | Indonesian |
+    | ms     | Malay      |
+    | en     | English    |
+    | nl     | Dutch      |
+    | de     | German     |
+    | da     | Danish     |
+    | no     | Norwegian  |
+    | sv     | Swedish    |
+    | fi     | Finnish    |
+    | lt     | Lithuanian |
+    | pl     | Polish     |
+    | ru     | Russian    |
+    | uk     | Ukrainian  |
+    | mk     | Macedonian |
+    | el     | Greek      |
+    | ro     | Romanian   |
+    | it     | Italian    |
+    | fr     | French     |
+    | ca     | Catalan    |
+    | es     | Spanish    |
+    | pt     | Portuguese |
+
+
 
 ## Evaluated keywords
 Revealing keywords are documented in `goddard-wierzbicka.csv`

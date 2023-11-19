@@ -63,21 +63,21 @@ def main():
     rankf = open(args.outf, "w")
 
     if not args.do_not_translate:
-        rankf.write("en_lemma\tlanguage\tforms\tsaliency rank\tsaliency score\n")
+        rankf.write("en_lemma\tlanguage\tforms\tfrequency\tsaliency rank\tsaliency score\n")
         for lw, rank in bayesian_tuple_rank.items():
             lang, lemma = lw[0], lw[1]
             forms = set(strong_translations[f'en_lemma-{lang}'][lemma])
             forms = '/'.join([form for form in forms if form in freq[lang]])
-            rankf.write("{}\t{}\t{}\t{}\t{}\n".format(lemma, lang, forms, rank, bayesian_score[lang].get(lemma, "na")))
+            rankf.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(lemma, lang, forms, tr_freq[lang].get(lemma, 'na'), rank, bayesian_score[lang].get(lemma, "na")))
         rankf.close()
-        print(f"English lemma, language, forms, saliency rank, saliency score have been saved to {args.outf}.")
+        print(f"English lemma, language, forms, frequency, saliency rank, saliency score have been saved to {args.outf}.")
     else:
-        rankf.write("form\tlanguage\tsaliency rank\tsaliency score\n")
+        rankf.write("form\tlanguage\tfrequency\tsaliency rank\tsaliency score\n")
         for lw, rank in bayesian_tuple_rank.items():
             lang, lemma = lw[0], lw[1]
-            rankf.write("{}\t{}\t{}\t{}\n".format(lemma, lang, rank, bayesian_score[lang].get(lemma, "na")))
+            rankf.write("{}\t{}\t{}\t{}\t{}\n".format(lemma, lang, tr_freq[lang].get(lemma, 'na'), rank, bayesian_score[lang].get(lemma, "na")))
         rankf.close()
-        print(f"Word, language, saliency rank, saliency score have been saved to {args.outf}.")
+        print(f"Word, language, frequency. saliency rank, saliency score have been saved to {args.outf}.")
     return
 
 

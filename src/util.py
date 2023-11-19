@@ -9,8 +9,8 @@ import numpy as np
 from io import StringIO
 from collections import Counter
 import opencc
-converter = opencc.OpenCC('t2s.json')
-
+# converter = opencc.OpenCC('t2s.json')
+converter = opencc.OpenCC('t2s')
 csv.field_size_limit(sys.maxsize)
 
 languages = ["ms", "pt", "fr", "id", "nl", "es", "en", "ru", "zh"]
